@@ -2,18 +2,15 @@ import './sass/main.scss';
 import fetchFn from './js/apiService';
 import template from './templates/listElements.hbs'
 
-// fetchFn('cats').then(resp => resp.json()).then(data => console.log(data.hits))
-
 const refs = {
   input: document.querySelector('.js-inputSearch'),
-  searchBtn: document.querySelector('.js-btn'),
+  searchBtn: document.querySelector('.js-searchBtn'),
   form: document.querySelector('#search-form'),
   div: document.querySelector('.js-forGallery'),
 };
 const { input, searchBtn, form, div } = refs;
 
 form.addEventListener('submit', onSearchHandler);
-let previousSearch;
 let page = 1;
 
 const ul = document.createElement('ul');
@@ -25,31 +22,56 @@ async function onSearchHandler(event) {
 
     ul.innerHTML = '';
 
-
     const inputValue = input.value;
     const result = await fetchFn(inputValue, page);
 
     if (result.length === 0) {
-        console.log('no results! try again');
+
+        divForButtonsRemover();
+        alert('No results were found! Please try again')
         return;
+
     } else if (result.length > 0) {
+
         const markUp = template(result);
         ul.insertAdjacentHTML('beforeend', markUp);
+        
         buttonCreate();
     }
 
 }
 
 function buttonCreate() {
-    if (document.querySelector('.loadMoreBtn')) {
-        document.querySelector('.loadMoreBtn').remove();
-    }
+
+    divForButtonsRemover();
+    divForButtonsCreator();
+
+    loadMoreBtnCreator();
+    resetBtnCreator();
+}
+
+function loadMoreBtnCreator() {
     const loadMore = document.createElement('button');
     loadMore.setAttribute('type', 'button');
     loadMore.classList.add('loadMoreBtn');
-    loadMore.textContent = 'Load more'
-    div.insertAdjacentElement('beforeend', loadMore)
+    loadMore.textContent = 'Load more';
+
+    if (document.querySelector('.divForButtons')) {
+      document.querySelector('.divForButtons').insertAdjacentElement('beforeend', loadMore);
+    }
     loadMore.addEventListener('click', onClickHandler);
+}
+
+function resetBtnCreator() {
+    const resetBtn = document.createElement('button');
+    resetBtn.classList.add('reset');
+    resetBtn.classList.add('js-reset');
+    resetBtn.textContent = 'Reset search';
+
+    if (document.querySelector('.divForButtons')) {
+      document.querySelector('.divForButtons').insertAdjacentElement('beforeend', resetBtn);
+    }
+    resetBtn.addEventListener('click', onResetHandler);
 }
 
 async function onClickHandler() {
@@ -64,8 +86,49 @@ async function onClickHandler() {
         block: 'end',
         behavior: 'smooth',
       });
-    }, 1000);
+    }, 500);
 }
+
+function onResetHandler() {
+    form.reset();
+    ul.innerHTML = '';
+
+    divForButtonsRemover();
+}
+
+function divForButtonsCreator() {
+  const divForButtons = document.createElement('div');
+  divForButtons.classList.add('divForButtons');
+  divForButtons.classList.add('js-divForButtons');
+  document.body.insertAdjacentElement('beforeend', divForButtons);
+}
+
+function divForButtonsRemover() {
+  if (document.querySelector('.divForButtons')) {
+    document.querySelector('.divForButtons').remove();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
